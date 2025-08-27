@@ -1,0 +1,13 @@
+# Arquivo de variáveis de ambiente. NUNCA deve ser enviado para o repositório.
+.env
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de IDEs
+.vscode/
+.idea/
+
+# Logs do Docker Compose (caso sejam gerados)
+*.log
