@@ -14,6 +14,8 @@ services:
       - postgres_data:/var/lib/postgresql/data # Garante que os dados do banco não se percam ao reiniciar
     ports:
       - "5432:5432" # Mapeia a porta do Postgres para podermos acessá-lo localmente
+    networks:
+      - app-network
 
   # 2. O Serviço da API de Dados (PHP)
   api:
@@ -30,6 +32,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
       - database # Garante que o contêiner do banco de dados inicie ANTES da API
+    networks:
+      - app-network
 
   # 3. O Serviço de Scraping (Rust)
   scraper:
@@ -40,6 +44,8 @@ services:
       - "8082:8082" # Expõe a porta 8082 do scraper
     environment:
       SCRAPER_API_KEY: ${SCRAPER_API_KEY} # Pega a chave da API do .env principal
+    networks:
+      - app-network
 
   # 4. O Serviço de Notificação (Go)
   notifier:
@@ -50,6 +56,30 @@ services:
       - "8080:8080" # Expõe a porta 8080 do notificador
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN} # Pega o token do .env principal
+    networks:
+      - app-network
+
+  # 5. O Serviço Worker (Python) - ADICIONADO
+  worker:
+    container_name: worker_service
+    build:
+      context: ./worker-service-python
+      dockerfile: Dockerfile
+    environment:
+      - DATA_API_URL=${DATA_API_URL}
+      - SCRAPER_SERVICE_URL=${SCRAPER_SERVICE_URL}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL}
+    depends_on:
+      - api
+      - scraper
+      - notifier
+    networks:
+      - app-network
+
+# Define a rede que permite a comunicação entre os contêineres
+networks:
+  app-network:
+    driver: bridge
 
 # Define os volumes nomeados que usamos (neste caso, para o banco)
 volumes:
