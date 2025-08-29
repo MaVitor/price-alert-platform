@@ -21,17 +21,18 @@ services:
   api:
     container_name: data_api
     build:
-      context: ./data-api-php # Constrói a imagem usando o Dockerfile na pasta ./data-api-php
+      context: ./data-api-php
     ports:
-      - "8000:8000" # Expõe a porta 8000 da API
+      - "8000:8000"
     environment:
-      DB_HOST: database # O host do banco agora é o nome do serviço 'database'
+      DB_CONNECTION: pgsql 
+      DB_HOST: database
       DB_PORT: ${DB_PORT}
       DB_DATABASE: ${DB_NAME}
       DB_USERNAME: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
-      - database # Garante que o contêiner do banco de dados inicie ANTES da API
+      - database
     networks:
       - app-network
 
